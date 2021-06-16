@@ -1,0 +1,9 @@
+﻿<Application x:Class="YoutubeDLWrapperView.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:YoutubeDLWrapperView" xmlns:converters="clr-namespace:YoutubeDLWrapperView.Converters"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <converters:NullableToVisibilityConverter x:Key="NullableToVisibilityConverter"/>
+    </Application.Resources>
+</Application>
