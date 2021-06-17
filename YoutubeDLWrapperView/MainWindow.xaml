@@ -29,13 +29,13 @@
         </DockPanel>
         <GroupBox Header="Информация о видео" Margin="10">
             <DockPanel LastChildFill="False">
-                <TextBlock DockPanel.Dock="Top" Text="{Binding VideoName, StringFormat='Заголовок ролика: {0}'}"/>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding Video.Name, StringFormat='Заголовок ролика: {0}'}"/>
                 <Label Content="Выберите качество видео:" DockPanel.Dock="Top"/>
                 <ComboBox 
                     DockPanel.Dock="Top" 
                     HorizontalAlignment="Center" 
-                    ItemsSource="{Binding Qualities}"
-                    Visibility="{Binding VideoName, Converter={StaticResource NullableToVisibilityConverter}}"
+                    ItemsSource="{Binding Video.Qualities}"
+                    Visibility="{Binding Video, Converter={StaticResource NullableToVisibilityConverter}}"
                     SelectedItem="{Binding SelectedQuality}"
                     Margin="20 5">
                     <ComboBox.ItemTemplate>

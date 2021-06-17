@@ -26,22 +26,18 @@ namespace YoutubeDLWrapperView
             Wrapper.EnsureYouTubeDlInstalledAndUpdated();
         }
 
+        [Reactive] public YoutubeDlVideo Video { get; set; }
         [Reactive] public string YoutubeVideoUrl { get; set; }
-        [Reactive] public string VideoName { get; set; }
-        [Reactive] public IEnumerable<YoutubeDlVideoQuality> Qualities { get; private set; } = new YoutubeDlVideoQuality[0];
         [Reactive] public YoutubeDlVideoQuality SelectedQuality { get; set; }
 
 
         private AsyncCommand searchUrl;
         public AsyncCommand SearchUrl => searchUrl ??= new(async () =>
         {
-            VideoName = null;
-            Task<string> videoNameTask = GetVideoNameAsync(YoutubeVideoUrl);
-            Task<IEnumerable<YoutubeDlVideoQuality>> videoQualitiesTask = GetVideoQualities(YoutubeVideoUrl);
-
-            VideoName = await videoNameTask;
-            Qualities = (await videoQualitiesTask).Where(x=>x.Extension.ToLower()!="webm");
-            SelectedQuality = Qualities.FirstOrDefault();
+            Video = null;
+            YoutubeDlVideo bufferVideo = await GetVideoInfoAsync(YoutubeVideoUrl);
+            Video = bufferVideo with { Qualities = bufferVideo.Qualities.Where(x => x.Extension != "webm") };
+            SelectedQuality = Video.Qualities.FirstOrDefault();
         }, () => !string.IsNullOrWhiteSpace(YoutubeVideoUrl));
 
         private AsyncCommand downloadVideo;
@@ -56,13 +52,14 @@ namespace YoutubeDLWrapperView
                 {
                     AddExtension = true,
                     DefaultExt = SelectedQuality.Extension,
-                    FileName = $"{BannedSymbolsRegex.Replace(VideoName.Truncate(100), "_")}.{SelectedQuality.Extension}",
+                    FileName = $"{BannedSymbolsRegex.Replace(Video.Name.Truncate(100), "_")}.{SelectedQuality.Extension}",
                     Filter = $"Video with same format|*.{SelectedQuality.Extension}|All files|*.*"
                 };
             });
 
             if (!saveFileDialog.ShowDialog().Value) return;
             await SaveVideo(SelectedQuality.Id, saveFileDialog.FileName, YoutubeVideoUrl);
+            Video = null;
         }, () => SelectedQuality != null && !string.IsNullOrWhiteSpace(YoutubeVideoUrl));
 
 

@@ -64,8 +64,32 @@ namespace YoutubeDlWrapper
             return updater;
         }
 
+        public record YoutubeDlVideo
+        {
+            public YoutubeDlVideo(string url, string name, IEnumerable<YoutubeDlVideoQuality> qualities)
+            {
+                Url = url;
+                Name = name;
+                Qualities = qualities;
+            }
+            public string Url { get; init; }
+            public string Name { get; init; }
+            public IEnumerable<YoutubeDlVideoQuality> Qualities { get; init; }
+        }
+
+        public static async Task<YoutubeDlVideo> GetVideoInfoAsync(string url)
+        {
+            Task<IEnumerable<YoutubeDlVideoQuality>> qualitiesTask = GetVideoQualities(url);
+            Task<string> videoNameTask = GetVideoNameAsync(url);
+
+            IEnumerable<YoutubeDlVideoQuality> qualities = await qualitiesTask;
+            string videoName = await videoNameTask;
+
+            return new YoutubeDlVideo(url, videoName, qualities);
+        }
+
         private static readonly Regex QualityRegex = new(@"^(?<number>\d+)\s+(?<extension>[a-z0-9]+)\s+(?<resolution>audio only|\d+x\d+)\s+(?<resolutionname>tiny|\d+p(\d*))\s+.+?(?<size>\(best\)|\d+\.\d+\w+)$");
-        public static async Task<IEnumerable<YoutubeDlVideoQuality>> GetVideoQualities(string url)
+        private static async Task<IEnumerable<YoutubeDlVideoQuality>> GetVideoQualities(string url)
         {
             ProgramStartHelper updater = getHelper();
             updater.Args.Add(new("-F"));
@@ -97,17 +121,19 @@ namespace YoutubeDlWrapper
             helper.Args.Add(new("-v"));
             helper.Args.Add(new("-o", filePath) { IsNeedSurroundWithQuotes = true });
             helper.Args.Add(new(url));
-            helper.DataReceivedEventHandler = (arg1, arg2) => 
+            helper.DataReceivedEventHandler = (arg1, arg2) =>
             {
                 Debug.WriteLine(arg2.Data);
             };
             ProgramStartHelper.useSpecial = true;
             await helper.Start();
             ProgramStartHelper.useSpecial = false;
+            helper = new("explorer.exe");
+            helper.Args.Add(new("/select,", filePath) { IsNeedSurroundWithQuotes = true });
+            await helper.Start();
         }
 
-
-        public static async Task<string> GetVideoNameAsync(string url)
+        private static async Task<string> GetVideoNameAsync(string url)
         {
             ProgramStartHelper updater = getHelper();
             updater.Args.Add(new("-e"));
