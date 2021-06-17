@@ -21,11 +21,15 @@
                 DockPanel.Dock="Right" 
                 Margin="5"
                 Command="{Binding SearchUrl}"/>
+            <TextBlock 
+                DockPanel.Dock="Left"
+                VerticalAlignment="Center"
+                Text="Введите адрес ролика на Youtube"/>
             <TextBox Margin="10" Text="{Binding YoutubeVideoUrl, UpdateSourceTrigger=PropertyChanged}"/>
         </DockPanel>
         <GroupBox Header="Информация о видео" Margin="10">
             <DockPanel LastChildFill="False">
-                <TextBlock DockPanel.Dock="Top" Text="{Binding VideoName}"/>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding VideoName, StringFormat='Заголовок ролика: {0}'}"/>
                 <Label Content="Выберите качество видео:" DockPanel.Dock="Top"/>
                 <ComboBox 
                     DockPanel.Dock="Top" 

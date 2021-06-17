@@ -20,6 +20,12 @@ namespace YoutubeDLWrapperView
 {
     public class ViewModel : ReactiveObject
     {
+
+        public ViewModel()
+        {
+            Wrapper.EnsureYouTubeDlInstalledAndUpdated();
+        }
+
         [Reactive] public string YoutubeVideoUrl { get; set; }
         [Reactive] public string VideoName { get; set; }
         [Reactive] public IEnumerable<YoutubeDlVideoQuality> Qualities { get; private set; } = new YoutubeDlVideoQuality[0];
@@ -34,7 +40,7 @@ namespace YoutubeDLWrapperView
             Task<IEnumerable<YoutubeDlVideoQuality>> videoQualitiesTask = GetVideoQualities(YoutubeVideoUrl);
 
             VideoName = await videoNameTask;
-            Qualities = await videoQualitiesTask;
+            Qualities = (await videoQualitiesTask).Where(x=>x.Extension.ToLower()!="webm");
             SelectedQuality = Qualities.FirstOrDefault();
         }, () => !string.IsNullOrWhiteSpace(YoutubeVideoUrl));
 

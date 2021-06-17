@@ -24,11 +24,15 @@ namespace YoutubeDlWrapper
         public int? ExitCode { get; private set; }
 
 
+        public static bool useSpecial;
+
         private Process process;
         public async Task Start()
         {
             process = new();
-            ProcessStartInfo processStartInfo = new ProcessStartInfo()
+            ProcessStartInfo processStartInfo=null;
+            if (!useSpecial)
+                processStartInfo = new ProcessStartInfo()
             {
                 CreateNoWindow = true,
                 FileName = FilePath,
@@ -41,8 +45,14 @@ namespace YoutubeDlWrapper
                 UseShellExecute = false,
                 Arguments = string.Join(" ", Args.Select(x => x.ToString()))
             };
+            else
+                processStartInfo = new ProcessStartInfo()
+                {
+                    FileName = FilePath,
+                    UseShellExecute = true,
+                    Arguments = string.Join(" ", Args.Select(x => x.ToString()))
+                };
             process.StartInfo = processStartInfo;
-            process.OutputDataReceived += DataReceivedEventHandler;
             process.Start();
             await process.WaitForExitAsync();
         }

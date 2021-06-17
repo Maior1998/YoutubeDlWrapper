@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace YoutubeDlWrapper
 {
@@ -59,6 +60,7 @@ namespace YoutubeDlWrapper
         {
             ProgramStartHelper updater = new(CurrentOsFileName);
             updater.Args.Add(new("--encoding", "utf-8"));
+            updater.Args.Add(new("-4"));
             return updater;
         }
 
@@ -92,9 +94,16 @@ namespace YoutubeDlWrapper
         {
             ProgramStartHelper helper = getHelper();
             helper.Args.Add(new("-f", formatCode));
+            helper.Args.Add(new("-v"));
             helper.Args.Add(new("-o", filePath) { IsNeedSurroundWithQuotes = true });
             helper.Args.Add(new(url));
+            helper.DataReceivedEventHandler = (arg1, arg2) => 
+            {
+                Debug.WriteLine(arg2.Data);
+            };
+            ProgramStartHelper.useSpecial = true;
             await helper.Start();
+            ProgramStartHelper.useSpecial = false;
         }
 
 
